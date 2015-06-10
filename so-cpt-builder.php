@@ -245,9 +245,8 @@ class SiteOrigin_Panels_CPT_Builder {
 
 		$widget = wp_parse_args( $widget, $default_widget );
 
-		$form = siteorigin_panels_render_form($widget['panels_info']['class'], $widget);
-		$form = str_replace( 'widgets[{$id}]', 'so_cpt_widget[' . $widget_id . ']', $form );
-		$form = str_replace( '{$id}', $widget_id, $form );
+		$form = siteorigin_panels_render_form($widget['panels_info']['class'], $widget, false, $widget_id );
+		$form = str_replace( 'widgets[' . $widget_id . ']', 'so_cpt_widget[' . $widget_id . ']', $form );
 
 		?><div class="so-cpt-widget-wrapper"><?php echo $form ?></div><?php
 	}
