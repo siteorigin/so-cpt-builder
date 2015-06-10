@@ -10,11 +10,15 @@ License: GPL3
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 */
 
-define('SO_CPT_BUILDER_VERSION', '1.0');
+if( !class_exists( 'SiteOrigin_Panels_CPT_Builder' ) ) :
 
+/**
+ * Class SiteOrigin_Panels_CPT_Builder
+ */
 class SiteOrigin_Panels_CPT_Builder {
 
 	const PAGE_ID = 'so_cpt_builder';
+	const VERSION = '1.0';
 
 	function __construct(){
 		add_action( 'admin_menu', array($this, 'admin_menu') );
@@ -76,7 +80,7 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function enqueue_admin_scripts(){
 		siteorigin_panels_admin_enqueue_scripts('', true);
-		wp_enqueue_script('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/js/so-cpt-builder.js', array('jquery') );
+		wp_enqueue_script('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/js/so-cpt-builder.js', array('jquery'), self::VERSION );
 	}
 
 	/**
@@ -84,7 +88,7 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function enqueue_admin_styles(){
 		siteorigin_panels_admin_enqueue_styles('', true);
-		wp_enqueue_style('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/css/admin.css' );
+		wp_enqueue_style('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/css/admin.css', array(), self::VERSION );
 	}
 
 	/**
@@ -126,7 +130,7 @@ class SiteOrigin_Panels_CPT_Builder {
 			global $post;
 			$panels_data = get_option( 'so_cpt_layout[' . $post->post_type . ']', array() );
 			if( !empty( $panels_data['widgets'] ) ) {
-				wp_enqueue_style('so-cpt-builder-posts', plugin_dir_url(__FILE__) .'css/admin.css', array(), SO_CPT_BUILDER_VERSION );
+				wp_enqueue_style('so-cpt-builder-posts', plugin_dir_url(__FILE__) .'css/admin.css', array(), self::VERSION );
 			}
 		}
 	}
@@ -317,7 +321,24 @@ class SiteOrigin_Panels_CPT_Builder {
 		return $panels_data;
 	}
 
+	/**
+	 * Get all the widgets that the post will use for.
+	 *
+	 * @param WP_Post|bool $post The post we're checking. False for the global post.
+	 * @return array|bool Either the array of widgets or false if there are none.
+	 */
+	function get_post_widgets( $post = false ){
+		if( empty($post) ) {
+			// We'll use the global post
+			$post = get_post();
+		}
+		$panels_data = get_option( 'so_cpt_layout[' . $post->post_type . ']', array() );
+		return !empty($panels_data['widgets']) ? $panels_data['widgets'] : false;
+	}
+
 }
 
 // Create the initial single instance
 SiteOrigin_Panels_CPT_Builder::single();
+
+endif;
