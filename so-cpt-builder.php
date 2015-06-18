@@ -20,7 +20,16 @@ class SiteOrigin_Panels_CPT_Builder {
 	const PAGE_ID = 'so_cpt_builder';
 	const VERSION = '1.0';
 
+	public $form_errors;
+	public $post_types;
+
 	function __construct(){
+		// These are post types created by the post type builder
+		$this->post_types = get_option( 'socpt_types', array() );
+
+		// Register the post types fairly late to make sure we're not conflicting
+		add_action( 'init', array($this, 'register_post_types'), 15 );
+
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 
 		add_action( 'admin_print_scripts-tools_page_' . self::PAGE_ID, array($this, 'enqueue_admin_scripts') );
@@ -92,6 +101,53 @@ class SiteOrigin_Panels_CPT_Builder {
 	}
 
 	/**
+	 *
+	 */
+	function register_post_types(){
+		if (empty($this->post_types) ) return;
+
+		// Get all the post types registered elsewhere
+		$post_types = get_post_types();
+		foreach( $this->post_types as $slug => $args ) {
+			if( !empty($post_types[$slug]) ) continue;
+
+			$labels = array(
+				'name' => $args['singular'],
+				'singular_name' => $args['singular'],
+				'menu_name' => $args['plural'],
+				'name_admin_bar' => $args['singular'],
+				'add_new' => __('Add New', 'so-cpt-builder'),
+				'add_new_item' => sprintf( __('Add New %s', 'so-cpt-builder'), $args['singular'] ),
+				'new_item' => sprintf( __('New %s', 'so-cpt-builder'), $args['singular'] ),
+				'edit_item' => sprintf( __('Edit %s', 'so-cpt-builder'), $args['singular'] ),
+				'view_item' => sprintf( __('View %s', 'so-cpt-builder'), $args['singular'] ),
+				'all_items' => sprintf( __('All %s', 'so-cpt-builder'), $args['plural'] ),
+				'search_items' => sprintf( __('Search %s', 'so-cpt-builder'), $args['plural'] ),
+				'parent_item_colon' => sprintf( __('Parent %s:', 'so-cpt-builder'), $args['plural'] ),
+				'not_found' => sprintf( __('No %s found.', 'so-cpt-builder'), strtolower( $args['plural'] ) ),
+				'not_found_in_trash' => sprintf( __('No %s found in trash.', 'so-cpt-builder'), strtolower( $args['plural'] ) ),
+			);
+
+			$post_type_args = array(
+				'labels' => $labels,
+				'public' => true,
+				'publicly_queryable' => true,
+				'show_ui' => true,
+				'show_in_menu' => true,
+				'query_var' => true,
+				'capability_type' => 'post',
+				'has_archive' => true,
+				'hierarchical' => false,
+				'menu_position' => null,
+				'menu_icon' => !empty($args['icon']) && $args['icon'] != 'admin-post' ? 'dashicons-' . $args['icon'] : null,
+				'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' )
+			);
+
+			register_post_type($slug, $post_type_args);
+		}
+	}
+
+	/**
 	 * Add the admin menu entry
 	 */
 	function admin_menu(){
@@ -103,22 +159,55 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function save_cpt_layout(){
 		// Lets check if we're saving something
-		if( empty($_GET['page']) || $_GET['page'] !== self::PAGE_ID ) return;
-		if( empty($_POST['panels_data']) ) return;
-		if( empty($_POST['_sopanels_cpt_nonce']) || !wp_verify_nonce($_POST['_sopanels_cpt_nonce'], 'save') ) return;
+		if( empty( $_GET['page'] ) || $_GET['page'] !== self::PAGE_ID ) return;
+		if( empty( $_POST['_sopanels_cpt_nonce'] ) || !wp_verify_nonce( $_POST['_sopanels_cpt_nonce'], 'save' ) ) return;
 
-		$panels_data = json_decode( filter_input(INPUT_POST, 'panels_data', FILTER_DEFAULT), true );
+		if( !empty( $_POST['panels_data'] ) ) {
+			$panels_data = json_decode( filter_input(INPUT_POST, 'panels_data', FILTER_DEFAULT), true );
 
-		// Lets process the panels_data
-		foreach( $panels_data['widgets'] as &$widget ) {
-			if( empty($widget['panels_info']['style']['so_cpt_custom_field']) ) continue;
-			if( $widget['panels_info']['style']['so_cpt_custom_field'] && empty($widget['panels_info']['style']['so_cpt_id']) ) {
-				$widget['panels_info']['style']['so_cpt_id'] = uniqid('', true);
+			// Lets process the panels_data
+			foreach( $panels_data['widgets'] as &$widget ) {
+				if( empty($widget['panels_info']['style']['so_cpt_custom_field']) ) continue;
+				if( $widget['panels_info']['style']['so_cpt_custom_field'] && empty($widget['panels_info']['style']['so_cpt_id']) ) {
+					$widget['panels_info']['style']['so_cpt_id'] = uniqid('', true);
+				}
+				$widget['panels_info']['style']['so_cpt_id'] = preg_replace('/[^A-Za-z0-9]+/', '', $widget['panels_info']['style']['so_cpt_id']);
 			}
-			$widget['panels_info']['style']['so_cpt_id'] = preg_replace('/[^A-Za-z0-9]+/', '', $widget['panels_info']['style']['so_cpt_id']);
-		}
 
-		update_option( 'so_cpt_layout[' . $_GET['type'] . ']', $panels_data );
+			update_option( 'so_cpt_layout[' . $_GET['type'] . ']', $panels_data );
+		}
+		else if( !empty($_POST['so_post_type']) ) {
+			// In this case, we're adding or editing a custom post type
+			$post_type = stripslashes_deep( $_POST['so_post_type'] );
+
+			$this->form_errors = array();
+
+			if( empty( $post_type['slug'] ) ) {
+				$this->form_errors['slug'] = __('Slug is required.', 'so-cpt-builder');
+			}
+
+			// TODO confirm that there are no illegal characters in the slug
+
+			// There were no errors so we can handle the form input
+			if( empty($this->form_errors) ) {
+				if( empty($post_type['singular']) ) {
+					$post_type['singular'] = ucfirst($post_type['slug']);
+				}
+				if( empty($post_type['plural']) ) {
+					$post_type['plural'] = $post_type['singular'] . 's';
+				}
+				if( empty($post_type['description']) ){
+					$post_type['description'] = __('Post type created with SiteOrigin Post Type Builder', 'so-cpt-builder');
+				}
+
+				// We're creating a new type
+				$this->post_types[ $post_type['slug'] ] = $post_type;
+				update_option('socpt_types', $this->post_types);
+			}
+
+			// Flush rewrite rules every time we edit post types
+			flush_rewrite_rules();
+		}
 	}
 
 	/**
@@ -130,7 +219,7 @@ class SiteOrigin_Panels_CPT_Builder {
 			global $post;
 			$panels_data = get_option( 'so_cpt_layout[' . $post->post_type . ']', array() );
 			if( !empty( $panels_data['widgets'] ) ) {
-				wp_enqueue_style('so-cpt-builder-posts', plugin_dir_url(__FILE__) .'css/admin.css', array(), self::VERSION );
+				wp_enqueue_style('so-cpt-builder-posts', plugin_dir_url(__FILE__) .'css/metaboxes.css', array(), self::VERSION );
 			}
 		}
 	}
@@ -139,14 +228,36 @@ class SiteOrigin_Panels_CPT_Builder {
 	 * Display the admin page
 	 */
 	function admin_page(){
-		if( !empty($_GET['type']) ) {
-			$panels_data = get_option( 'so_cpt_layout[' . $_GET['type'] . ']', array() );
-		}
-		else {
-			$panels_data = array();
+
+		$action = !empty($_GET['action']) ? $_GET['action'] : 'build';
+		$type = !empty($_GET['type']) ? $_GET['type'] : '';
+
+		switch( $action ) {
+			case 'build' :
+				if( empty($type) ) {
+					include plugin_dir_path(__FILE__).'tpl/admin-home.php';
+				}
+				else {
+					$panels_data = get_option( 'so_cpt_layout[' . $type . ']', array() );
+					include plugin_dir_path(__FILE__).'tpl/admin-build.php';
+				}
+				break;
+
+			case 'edit' :
+				$active_post_type = !empty( $type ) && !empty( $this->post_types[$type] ) ? $this->post_types[$type] : array();
+				$active_post_type = wp_parse_args( $active_post_type, array(
+					'slug' => '',
+					'singular' => '',
+					'plural' => '',
+					'icon' => 'admin-post',
+					'description' => '',
+				) );
+				$dashicons = include plugin_dir_path(__FILE__) . '/inc/dashicons.php';
+
+				include plugin_dir_path(__FILE__).'tpl/admin-edit.php';
+				break;
 		}
 
-		include plugin_dir_path(__FILE__).'tpl/admin-page.php';
 	}
 
 	/**

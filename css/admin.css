@@ -1,16 +1,77 @@
-#so-cpt .so-cpt-widget-label {
+#cpt-builder {
+  margin: 0 0 0 -20px;
+}
+#cpt-builder .page-header {
   display: block;
-  margin: 0 -12px 10px -12px;
-  padding: 10px 15px;
-  background: #008000;
+  padding: 15px 30px 0 30px;
+  background: #f6f6f6;
+  position: relative;
+  border-bottom: 1px solid #d6d6d6;
+}
+#cpt-builder .page-header h1 {
+  font: 300 2.3em/1.4em "proxima-nova", "Open Sans", Helvetica, Arial, sans-serif;
+  color: #666;
+  /* text-shadow: 0 1px 1px rgba(0,0,0,0.2); */
+}
+#cpt-builder .page-header .post-types {
+  background: #f6f6f6;
+  padding: 5px 0 0 0;
+  margin: 0;
+  font-size: 0;
+}
+#cpt-builder .page-header .post-types li {
+  display: inline-block;
+  margin: 0 0 -1px 0;
+  background: #f6f6f6;
+  line-height: 1em;
+  font-size: 12px;
+  border: 1px solid #d6d6d6;
+  border-width: 1px 0 1px 1px;
+  transition: all 0.2s;
+  position: relative;
+}
+#cpt-builder .page-header .post-types li:last-child {
+  border-right-width: 1px;
+}
+#cpt-builder .page-header .post-types li a {
+  display: block;
+  text-decoration: none;
+  color: #555;
+  padding: 12px 25px 12px 32px;
   font-weight: bold;
+  box-shadow: none !important;
 }
-#so-cpt .so-cpt-widget-form {
-  margin-bottom: 20px;
+#cpt-builder .page-header .post-types li:hover {
+  background: #f3f3f3;
 }
-#so-cpt .so-cpt-widget-wrapper {
-  margin-bottom: 20px;
+#cpt-builder .page-header .post-types li.active {
+  background: #f0f0f0;
+  border-bottom-color: #f0f0f0;
 }
-#so-cpt .so-cpt-widget-wrapper:last-child {
-  margin-bottom: 0;
+#cpt-builder .page-header .post-types li .dashicons {
+  position: absolute;
+  top: 12px;
+  left: 8px;
+  display: inline-block;
+  color: #555;
+  font-size: 12px;
+}
+#cpt-builder > form {
+  padding: 0 30px 0 30px;
+  margin-top: 20px;
+  /* Everything for the edit form */
+}
+#cpt-builder > form.edit-form .field-description textarea,
+#cpt-builder > form.edit-form input[type="text"] {
+  box-sizing: border-box;
+  max-width: 450px;
+  width: 100%;
+}
+#cpt-builder > form .edit-post-type {
+  margin-top: 3px;
+  float: right;
+}
+#cpt-builder .intro-container {
+  padding: 0 30px 0 30px;
+  margin-top: 20px;
 }

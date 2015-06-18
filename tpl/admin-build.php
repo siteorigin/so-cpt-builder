@@ -1,17 +1,6 @@
-<div class="wrap" id="panels-cpt-builder">
+<div class="wrap" id="cpt-builder">
 
-	<div class="page-header">
-		<h2>Post Type Builder</h2>
-		<div class="post-types">
-			<?php
-			$post_types = get_post_types();
-			foreach( $post_types as $type => $name ) {
-				?><a href="<?php echo add_query_arg('type', $type) ?>"><?php echo $name ?></a> <?php
-			}
-			?>
-		</div>
-	</div>
-
+	<?php include dirname(__FILE__) . '/header.php' ?>
 
 	<form action="<?php echo add_query_arg(false, false) ?>" class="hide-if-no-js siteorigin-panels-builder-form" method="post" id="panels-cpt-form">
 
@@ -24,7 +13,12 @@
 			document.getElementById('panels-data-field-cpt-builder').value = decodeURIComponent("<?php echo rawurlencode( json_encode($panels_data) ); ?>");
 		</script>
 
-		<p><input type="submit" class="button button-primary" id="panels-save-home-page" value="<?php esc_attr_e('Save Post Type', 'siteorigin-panels') ?>" /></p>
+
+		<?php if( !empty($this->post_types[$type]) ) : ?>
+			<a href="<?php echo add_query_arg('action', 'edit') ?>" class="button-secondary edit-post-type"><?php _e('Edit Post Type', 'so-cpt-builder') ?></a>
+		<?php endif; ?>
+
+		<p><input type="submit" class="button button-primary" id="panels-save-home-page" value="<?php esc_attr_e('Save Post Type', 'so-cpt-builder') ?>" /></p>
 
 		<?php wp_nonce_field('save', '_sopanels_cpt_nonce') ?>
 
