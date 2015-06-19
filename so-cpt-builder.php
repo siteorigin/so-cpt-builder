@@ -10,8 +10,6 @@ License: GPL3
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 */
 
-if( !class_exists( 'SiteOrigin_Panels_CPT_Builder' ) ) :
-
 /**
  * Class SiteOrigin_Panels_CPT_Builder
  */
@@ -48,6 +46,9 @@ class SiteOrigin_Panels_CPT_Builder {
 		// This is for displaying the metaboxes
 		add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
 		add_action( 'save_post', array($this, 'save_post'), 10, 2 );
+
+		// Filter the single template
+		add_filter( 'single_template', array($this, 'change_single_template') );
 
 		// Filter panels_data
 		if( !is_admin() ) {
@@ -175,7 +176,9 @@ class SiteOrigin_Panels_CPT_Builder {
 			}
 
 			update_option( 'so_cpt_layout[' . $_GET['type'] . ']', $panels_data );
+			update_option( 'so_cpt_template[' . $_GET['type'] . ']', $_POST['post_type_template'] );
 		}
+
 		else if( !empty($_POST['so_post_type']) ) {
 			// In this case, we're adding or editing a custom post type
 			$post_type = stripslashes_deep( $_POST['so_post_type'] );
@@ -234,6 +237,7 @@ class SiteOrigin_Panels_CPT_Builder {
 
 		switch( $action ) {
 			case 'build' :
+				$page_template = get_option('so_cpt_template[' . $type  . ']', '');
 				if( empty($type) ) {
 					include plugin_dir_path(__FILE__).'tpl/admin-home.php';
 				}
@@ -396,6 +400,7 @@ class SiteOrigin_Panels_CPT_Builder {
 	 * @return mixed|void
 	 */
 	function post_metadata( $value, $post_id, $meta_key ){
+
 		if( $meta_key === 'panels_data' ) {
 			$post = get_post($post_id);
 			$panels_data = get_option( 'so_cpt_layout[' . $post->post_type . ']', array() );
@@ -412,8 +417,9 @@ class SiteOrigin_Panels_CPT_Builder {
 						$panels_data['widgets'][$i] = wp_parse_args( $post_widget, $widget );
 					}
 				}
+
+				return array($panels_data);
 			}
-			return array($panels_data);
 		}
 
 		return $value;
@@ -446,9 +452,34 @@ class SiteOrigin_Panels_CPT_Builder {
 		return !empty($panels_data['widgets']) ? $panels_data['widgets'] : false;
 	}
 
+	/**
+	 * Filter the template so we use the one Post Type Builder wants
+	 *
+	 * @param $template
+	 *
+	 * @return string
+	 */
+	function change_single_template( $template ){
+		global $post;
+
+		$cpt_template = get_option( 'so_cpt_template[' . $post->post_type . ']', '' );
+		if( !empty($cpt_template) ) {
+			if( $cpt_template == 'default' ) {
+				$cpt_template = locate_template('page.php');
+			}
+			else {
+				$cpt_template = locate_template( $cpt_template );
+			}
+
+			if( !empty($cpt_template) ) {
+				$template = $cpt_template;
+			}
+		}
+
+		return $template;
+	}
+
 }
 
 // Create the initial single instance
 SiteOrigin_Panels_CPT_Builder::single();
-
-endif;

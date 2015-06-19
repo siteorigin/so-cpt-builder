@@ -4,6 +4,18 @@
 
 	<form action="<?php echo add_query_arg(false, false) ?>" class="hide-if-no-js siteorigin-panels-builder-form" method="post" id="panels-cpt-form">
 
+		<div class="page-template">
+			<label for="page-template-selector"><?php _e('Page Template: ', 'so-cpt-builder') ?></label>
+			<?php $templates = get_page_templates(); ?>
+			<select name="post_type_template" id="page-template-selector">
+				<option value="" <?php selected($page_template, '') ?>><?php esc_html_e( 'Default', 'so-cpt-builder' ) ?></option>
+				<option value="default" <?php selected($page_template, 'default') ?>><?php esc_html_e( 'Default Page Template', 'so-cpt-builder' ) ?></option>
+				<?php foreach( $templates as $template_name => $template_path ) : ?>
+					<option value="<?php echo esc_attr($template_path) ?>" <?php selected($page_template, $template_path) ?>><?php echo esc_html($template_name) ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+
 		<div class="siteorigin-panels-builder so-panels-loading">
 
 		</div>

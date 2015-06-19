@@ -1,9 +1,12 @@
 <div class="page-header">
-	<h1>Post Type Builder</h1>
+	<h1><?php _e('Post Type Builder', 'so-cpt-builder') ?></h1>
 	<ul class="post-types">
 		<?php
 		$post_types = get_post_types();
 		foreach( $post_types as $t => $n ) {
+			// We'll skip out attachments
+			if( $t == 'attachment' ) continue;
+
 			$pt = get_post_type_object($t);
 			if( !$pt->public ) continue;
 
