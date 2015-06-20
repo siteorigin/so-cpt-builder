@@ -4,7 +4,11 @@
 
 	<form  action="<?php echo add_query_arg(false, false) ?>" method="post" class="edit-form">
 
-		<h3><?php _e('Labels', 'so-cpt-builder') ?></h3>
+		<?php if( empty($type) ) : ?>
+			<h3><?php _e('Create New Post Type', 'so-cpt-builder') ?></h3>
+		<?php else : ?>
+			<h3><?php printf( __('Edit Post Type') ) ?></h3>
+		<?php endif; ?>
 
 		<table class="form-table">
 			<tbody>
@@ -29,20 +33,6 @@
 						<select name="so_post_type[icon]">
 							<?php foreach( $dashicons as $dashicon ) : ?>
 								<option value="<?php echo esc_attr($dashicon) ?>" <?php selected($active_post_type['icon'], $dashicon) ?>><?php echo esc_html($dashicon) ?></option>
-							<?php endforeach; ?>
-						</select>
-					</td>
-				</tr>
-
-				<tr class="field-menu-icon">
-					<th scope="row"><?php _e('Page Template', 'so-cpt-builder') ?></th>
-					<td>
-						<?php $templates = get_page_templates(); ?>
-						<select name="so_post_type[template]">
-							<option value="" <?php selected($active_post_type['template'], '') ?>><?php esc_html_e( 'Default', 'so-cpt-builder' ) ?></option>
-							<option value="default" <?php selected($active_post_type['template'], 'default') ?>><?php esc_html_e( 'Default Page Template', 'so-cpt-builder' ) ?></option>
-							<?php foreach( $templates as $template_name => $template_path ) : ?>
-								<option value="<?php echo esc_attr($template_path) ?>" <?php selected($active_post_type['template'], $template_path) ?>><?php echo esc_html($template_name) ?></option>
 							<?php endforeach; ?>
 						</select>
 					</td>
