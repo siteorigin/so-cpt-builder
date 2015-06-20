@@ -165,6 +165,8 @@ class SiteOrigin_Panels_CPT_Builder {
 
 		if( !empty( $_POST['panels_data'] ) ) {
 			$panels_data = json_decode( filter_input(INPUT_POST, 'panels_data', FILTER_DEFAULT), true );
+			$panels_data['widgets'] = siteorigin_panels_process_raw_widgets($panels_data['widgets']);
+			$panels_data = siteorigin_panels_styles_sanitize_all( $panels_data );
 
 			// Lets process the panels_data
 			foreach( $panels_data['widgets'] as &$widget ) {
