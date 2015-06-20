@@ -188,8 +188,9 @@ class SiteOrigin_Panels_CPT_Builder {
 			if( empty( $post_type['slug'] ) ) {
 				$this->form_errors['slug'] = __('Slug is required.', 'so-cpt-builder');
 			}
-
-			// TODO confirm that there are no illegal characters in the slug
+			else if( $post_type['slug'] != sanitize_title_with_dashes($post_type['slug']) ) {
+				$this->form_errors['slug'] = __('Invalid characters in post slug.', 'so-cpt-builder');
+			}
 
 			// There were no errors so we can handle the form input
 			if( empty($this->form_errors) ) {
