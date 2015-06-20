@@ -40,8 +40,8 @@ class SiteOrigin_Panels_CPT_Builder {
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_post_admin_scripts') );
 
 		// This is to modify Page Builder style sections for the custom post type interface
-		add_filter( 'siteorigin_panels_widget_style_groups', array($this, 'widget_style_groups') );
-		add_filter( 'siteorigin_panels_widget_style_fields', array($this, 'widget_style_fields') );
+		add_filter( 'siteorigin_panels_widget_style_groups', array($this, 'widget_style_groups'), 10, 3 );
+		add_filter( 'siteorigin_panels_widget_style_fields', array($this, 'widget_style_fields'), 10, 3 );
 
 		// This is for displaying the metaboxes
 		add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
@@ -272,7 +272,10 @@ class SiteOrigin_Panels_CPT_Builder {
 	 *
 	 * @return mixed
 	 */
-	function widget_style_groups($groups) {
+	function widget_style_groups( $groups, $post_id, $args ) {
+		// Ignore this when not displaying the Post Type Builder
+		if( !empty( $args['builderType'] ) && $args['builderType'] !== 'post_type_builder' ) return $groups;
+
 		$groups['so_cpt'] = array(
 			'name' => __('Custom Post Type', 'siteorigin-panels'),
 			'priority' => 1
@@ -288,7 +291,9 @@ class SiteOrigin_Panels_CPT_Builder {
 	 *
 	 * @return mixed
 	 */
-	function widget_style_fields($fields) {
+	function widget_style_fields($fields, $post_id, $args ) {
+		// Ignore this when not displaying the Post Type Builder
+		if( !empty( $args['builderType'] ) && $args['builderType'] !== 'post_type_builder' ) return $fields;
 
 		$fields['so_cpt_custom_field'] = array(
 			'name' => __('Custom Field', 'siteorigin-panels'),

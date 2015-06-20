@@ -2,7 +2,7 @@
 
 	<?php include dirname(__FILE__) . '/header.php' ?>
 
-	<form action="<?php echo add_query_arg(false, false) ?>" class="hide-if-no-js siteorigin-panels-builder-form" method="post" id="panels-cpt-form">
+	<form action="<?php echo add_query_arg(false, false) ?>" class="hide-if-no-js siteorigin-panels-builder-form" method="post" id="panels-cpt-form" data-type="post_type_builder">
 
 		<div class="page-template">
 			<label for="page-template-selector"><?php _e('Page Template: ', 'so-cpt-builder') ?></label>
