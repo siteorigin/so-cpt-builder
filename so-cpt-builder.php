@@ -276,12 +276,12 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function widget_style_groups( $groups, $post_id, $args ) {
 		// Ignore this when not displaying the Post Type Builder
-		if( !empty( $args['builderType'] ) && $args['builderType'] !== 'post_type_builder' ) return $groups;
-
-		$groups['so_cpt'] = array(
-			'name' => __('Custom Post Type', 'siteorigin-panels'),
-			'priority' => 1
-		);
+		if( ( !empty( $args['builderType'] ) && $args['builderType'] === 'post_type_builder' ) || $args === false ) {
+			$groups['so_cpt'] = array(
+				'name' => __('Custom Post Type', 'siteorigin-panels'),
+				'priority' => 1
+			);
+		}
 
 		return $groups;
 	}
@@ -295,31 +295,31 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function widget_style_fields($fields, $post_id, $args ) {
 		// Ignore this when not displaying the Post Type Builder
-		if( !empty( $args['builderType'] ) && $args['builderType'] !== 'post_type_builder' ) return $fields;
+		if( ( !empty( $args['builderType'] ) && $args['builderType'] === 'post_type_builder' ) || $args === false ) {
+			$fields['so_cpt_custom_field'] = array(
+				'name' => __('Custom Field', 'siteorigin-panels'),
+				'type' => 'checkbox',
+				'group' => 'so_cpt',
+				'description' => __('Is this a custom field', 'siteorigin-panels'),
+				'priority' => 5,
+			);
 
-		$fields['so_cpt_custom_field'] = array(
-			'name' => __('Custom Field', 'siteorigin-panels'),
-			'type' => 'checkbox',
-			'group' => 'so_cpt',
-			'description' => __('Is this a custom field', 'siteorigin-panels'),
-			'priority' => 5,
-		);
+			$fields['so_cpt_custom_label'] = array(
+				'name' => __('Field Label', 'siteorigin-panels'),
+				'type' => 'text',
+				'group' => 'so_cpt',
+				'description' => __('Label for this field', 'siteorigin-panels'),
+				'priority' => 10,
+			);
 
-		$fields['so_cpt_custom_label'] = array(
-			'name' => __('Field Label', 'siteorigin-panels'),
-			'type' => 'text',
-			'group' => 'so_cpt',
-			'description' => __('Label for this field', 'siteorigin-panels'),
-			'priority' => 10,
-		);
-
-		$fields['so_cpt_id'] = array(
-			'name' => __('Field ID', 'siteorigin-panels'),
-			'type' => 'text',
-			'group' => 'so_cpt',
-			'description' => __('ID that identifies this field (auto generated)', 'siteorigin-panels'),
-			'priority' => 15,
-		);
+			$fields['so_cpt_id'] = array(
+				'name' => __('Field ID', 'siteorigin-panels'),
+				'type' => 'text',
+				'group' => 'so_cpt',
+				'description' => __('ID that identifies this field (auto generated)', 'siteorigin-panels'),
+				'priority' => 15,
+			);
+		}
 		return $fields;
 	}
 
