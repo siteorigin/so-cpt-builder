@@ -1,5 +1,8 @@
 <div class="page-header">
-	<h1><?php _e('Post Type Builder', 'so-cpt-builder') ?></h1>
+	<h1>
+		<span class="icon"><img src="<?php echo plugin_dir_url(__FILE__) . '../css/images/icon.png' ?>" width="32px" height="40px" /></span>
+		<?php _e('Post Type Builder', 'so-cpt-builder') ?>
+	</h1>
 	<ul class="post-types">
 		<?php
 		$post_types = get_post_types();

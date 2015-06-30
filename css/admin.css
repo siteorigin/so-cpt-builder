@@ -13,6 +13,11 @@
   color: #666;
   /* text-shadow: 0 1px 1px rgba(0,0,0,0.2); */
 }
+#cpt-builder .page-header h1 .icon {
+  display: block;
+  float: left;
+  margin: 0 15px -12px 0;
+}
 #cpt-builder .page-header .post-types {
   background: #f6f6f6;
   padding: 5px 0 0 0;
