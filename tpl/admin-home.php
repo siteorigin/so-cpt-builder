@@ -4,7 +4,8 @@
 
 	<div class="intro-container">
 
-		This is where the home stuff goes
+		<?php _e('Welcome to the SiteOrigin Post Type Builder.', 'siteorigin-panels') ?>
+		<?php _e('Click on one of the tabs above or click Add New to create a new post type.', 'siteorigin-panels') ?>
 
 	</div>
 
