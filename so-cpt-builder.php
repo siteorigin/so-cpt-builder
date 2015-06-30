@@ -17,6 +17,8 @@ class SiteOrigin_Panels_CPT_Builder {
 
 	const PAGE_ID = 'so_cpt_builder';
 	const VERSION = '1.0';
+	const JS_SUFFIX = '';
+	const REQUIRED_PANELS = '2.1.2';
 
 	public $form_errors;
 	public $post_types;
@@ -24,6 +26,8 @@ class SiteOrigin_Panels_CPT_Builder {
 	function __construct(){
 		// These are post types created by the post type builder
 		$this->post_types = get_option( 'socpt_types', array() );
+
+		add_action( 'plugins_loaded', array($this, 'load_installer') );
 
 		// Register the post types fairly late to make sure we're not conflicting
 		add_action( 'init', array($this, 'register_post_types'), 15 );
@@ -90,7 +94,7 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function enqueue_admin_scripts(){
 		siteorigin_panels_admin_enqueue_scripts('', true);
-		wp_enqueue_script('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/js/so-cpt-builder.js', array('jquery'), self::VERSION );
+		wp_enqueue_script('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/js/so-cpt-builder' . self::JS_SUFFIX . '.js', array('jquery'), self::VERSION );
 	}
 
 	/**
@@ -102,7 +106,14 @@ class SiteOrigin_Panels_CPT_Builder {
 	}
 
 	/**
-	 *
+	 * Load the Page Builder installer
+	 */
+	function load_installer(){
+		include plugin_dir_path( __FILE__ ) . 'inc/panels-activation.php';
+	}
+
+	/**
+	 * register all the neccessary post types
 	 */
 	function register_post_types(){
 		if (empty($this->post_types) ) return;
@@ -213,6 +224,10 @@ class SiteOrigin_Panels_CPT_Builder {
 
 			// Flush rewrite rules every time we edit post types
 			flush_rewrite_rules();
+
+			// Redirect back to the page to force a refresh
+			wp_redirect( admin_url('tools.php?page=so_cpt_builder&action=build&type=' . esc_attr( $post_type['slug'] ) ) );
+			die();
 		}
 	}
 
@@ -234,6 +249,11 @@ class SiteOrigin_Panels_CPT_Builder {
 	 * Display the admin page
 	 */
 	function admin_page(){
+
+		if( !defined('SITEORIGIN_PANELS_VERSION') || version_compare( SITEORIGIN_PANELS_VERSION, self::REQUIRED_PANELS, '<' ) ) {
+			include plugin_dir_path(__FILE__).'tpl/admin-no-pb.php';
+			return;
+		}
 
 		$action = !empty($_GET['action']) ? $_GET['action'] : 'build';
 		$type = !empty($_GET['type']) ? $_GET['type'] : '';
@@ -333,12 +353,8 @@ class SiteOrigin_Panels_CPT_Builder {
 			if( !empty($panels_data['widgets']) ) {
 				foreach( $panels_data['widgets'] as $widget ) {
 					if( empty($widget['panels_info']['style']['so_cpt_custom_field']) ) continue;
-					$widget['panels_info']['style']['so_cpt_custom_label'];
 
-					$label = $widget['panels_info']['style']['so_cpt_custom_label'];
-					if( empty($label) ) {
-						$label = __('Untitled', 'so-cpt-builder');
-					}
+					$label = !empty($widget['panels_info']['style']['so_cpt_custom_label']) ? $widget['panels_info']['style']['so_cpt_custom_label'] : __('Untitled', 'so-cpt-builder');
 					$widget_id = $widget['panels_info']['style']['so_cpt_id'];
 					add_meta_box(
 						'so-cpt-' . $widget_id,
