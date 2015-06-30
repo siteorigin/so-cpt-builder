@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: SiteOrigin Custom Post Type Builder
+Plugin Name: SiteOrigin Post Type Builder
 Description: Create page layouts and use any widget as a custom field type
 Version: 1.0
 Author: SiteOrigin
 Author URI: https://siteorigin.com
-Plugin URI: https://siteorigin.com/cpt-builder/
+Plugin URI: https://siteorigin.com/page-builder/post-types/
 License: GPL3
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 */
