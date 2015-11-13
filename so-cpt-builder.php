@@ -93,7 +93,9 @@ class SiteOrigin_Panels_CPT_Builder {
 	 * Enqueue any admin scripts
 	 */
 	function enqueue_admin_scripts(){
-		siteorigin_panels_admin_enqueue_scripts('', true);
+		if( function_exists('siteorigin_panels_admin_enqueue_scripts') ) {
+			siteorigin_panels_admin_enqueue_scripts('', true);
+		}
 		wp_enqueue_script('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/js/so-cpt-builder' . self::JS_SUFFIX . '.js', array('jquery'), self::VERSION );
 	}
 
@@ -101,7 +103,9 @@ class SiteOrigin_Panels_CPT_Builder {
 	 * Enqueue any admin styles
 	 */
 	function enqueue_admin_styles(){
-		siteorigin_panels_admin_enqueue_styles('', true);
+		if( function_exists('siteorigin_panels_admin_enqueue_styles') ) {
+			siteorigin_panels_admin_enqueue_styles( '', true );
+		}
 		wp_enqueue_style('siteorigin-panels-cpt-builder', plugin_dir_url(__FILE__) . '/css/admin.css', array(), self::VERSION );
 	}
 
@@ -250,7 +254,7 @@ class SiteOrigin_Panels_CPT_Builder {
 	 */
 	function admin_page(){
 
-		if( !defined('SITEORIGIN_PANELS_VERSION') || version_compare( SITEORIGIN_PANELS_VERSION, self::REQUIRED_PANELS, '<' ) ) {
+		if( !defined('SITEORIGIN_PANELS_VERSION') || ( SITEORIGIN_PANELS_VERSION !== 'dev' && version_compare( SITEORIGIN_PANELS_VERSION, self::REQUIRED_PANELS, '<' ) ) ) {
 			include plugin_dir_path(__FILE__).'tpl/admin-no-pb.php';
 			return;
 		}
