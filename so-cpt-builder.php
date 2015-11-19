@@ -195,7 +195,17 @@ class SiteOrigin_Panels_CPT_Builder {
 			update_option( 'so_cpt_layout[' . $_GET['type'] . ']', $panels_data );
 			update_option( 'so_cpt_template[' . $_GET['type'] . ']', $_POST['post_type_template'] );
 		}
+		else if( !empty($_POST['so_post_type']) && !empty($_POST['delete_post_type']) ) {
+			unset( $this->post_types[ $_POST['current_slug'] ] );
+			update_option('socpt_types', $this->post_types);
 
+			// Flush rewrite rules every time we edit post types
+			flush_rewrite_rules();
+
+			// Redirect back to the page to force a refresh
+			wp_redirect( admin_url('tools.php?page=so_cpt_builder&action=build&notify=deleted' ) );
+			die();
+		}
 		else if( !empty($_POST['so_post_type']) ) {
 			// In this case, we're adding or editing a custom post type
 			$post_type = stripslashes_deep( $_POST['so_post_type'] );
@@ -223,6 +233,11 @@ class SiteOrigin_Panels_CPT_Builder {
 
 				// We're creating a new type
 				$this->post_types[ $post_type['slug'] ] = $post_type;
+				if( !empty($_POST['current_slug']) && $_POST['current_slug'] !== $post_type['slug'] ) {
+					// This has changed post type names
+					unset( $this->post_types[ $_POST['current_slug'] ] );
+				}
+
 				update_option('socpt_types', $this->post_types);
 			}
 
